@@ -21,8 +21,9 @@ export default class Hero{
     kill(object){
         if(object.x + object.width >= this.x && object.x <= this.x + this.width &&
             object.y + object.height >= this.y){
-                object.speedX = -object.speedX
+                object.speedX = 0
                 object.speedY = -object.speedY
+                object.accelerate = 0
                 return true
         }
         return false

@@ -8,20 +8,30 @@ export default class Enemy{
     width
     height
 
+    explosion = null
+    explosionFrame = 0
+
     constructor(src){
         this.image = wx.createImage()
         this.image.src = src
     }
 
 
-    nextFrame(){
-        this.x += this.speedX
-        this.y += this.speedY
-        this.speedY += this.accelerate
+    move(){
+        if (this.explosion == null) {
+            this.x += this.speedX
+            this.y += this.speedY
+            this.speedY += this.accelerate
+        }
     }
 
     draw(context){
-        context.drawImage(this.image, this.x, this.y, this.width, this.height)
+        if (this.explosion != null && this.explosionFrame < this.explosion.length) {
+            context.drawImage(this.explosion[this.explosionFrame], this.x, this.y, this.width, this.height)
+            this.explosionFrame++
+        } else {
+            context.drawImage(this.image, this.x, this.y, this.width, this.height)
+        }
     }
 
     isOutOfRange(rect){
@@ -36,5 +46,25 @@ export default class Enemy{
             return true
         }
         return false
+    }
+
+    startExplosion(){
+        this.explosion = new Array()
+        for(let i = 1; i <= 19; i++){
+            let img = wx.createImage()
+            img.src = 'images/explosion' + i + '.png'
+            this.explosion.push(img)
+        }
+    }
+
+    //return 0 没炸  1 正在炸 2 结束了
+    explosionProgress(){
+        if (this.explosion == null) {
+            return 0
+        } else if (this.explosionFrame < this.explosion.length) {
+            return 1
+        } else {
+            return 2
+        }
     }
 }

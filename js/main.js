@@ -1,6 +1,8 @@
 import Background from './runtime/background'
 import Enemy from 'npc/enemy.js'
 import Hero from 'player/hero.js'
+import DataBus from 'runtime/databus.js'
+import ScoreAnimation from 'npc/scoreanimation.js'
 
 let ctx = canvas.getContext('2d')
 /**
@@ -10,7 +12,7 @@ export default class Main {
     constructor() {
         // 维护当前requestAnimationFrame的id
         this.aniId = 0
-        this.score = 0
+        this.databus = new DataBus()
         this.restart()
     }
 
@@ -18,16 +20,16 @@ export default class Main {
         let t = 1.5
         let fps = 60
         let enemy = new Enemy('images/enemy.png')
+        enemy.width = 32
+        enemy.height = 32
         enemy.x = 0
-        enemy.y = canvas.height - 50
+        enemy.y = this.background.skyHeight - enemy.height
 
         let s = canvas.width / 2 * (1 + Math.random())
 
         enemy.speedX = s / (t * fps * 2)
         enemy.speedY = -2*enemy.y/(t*fps)
         enemy.accelerate = -enemy.speedY / (t * fps)
-        enemy.width = 32
-        enemy.height = 32
         return enemy
     }
 
@@ -53,10 +55,19 @@ export default class Main {
         this.background.width = canvas.width
     }
 
+    produceScoreAnimation(score){
+        this.scoreAnimation = new ScoreAnimation()
+        this.scoreAnimation.score = score
+        this.scoreAnimation.width = this.databus.enemy.width
+        this.scoreAnimation.height = 30
+        this.scoreAnimation.startx = this.databus.enemy.x
+        this.scoreAnimation.starty = this.databus.enemy.y - this.scoreAnimation.height
+        this.scoreAnimation.endx = this.databus.enemy.x
+    }
     restart() {
         this.produceBackground()
-        this.hero = this.produceHero()
-        this.enemy = this.produceEnemy()
+        this.databus.hero = this.produceHero()
+        this.databus.enemy = this.produceEnemy()
 
         canvas.addEventListener(
             'touchstart',
@@ -83,37 +94,37 @@ export default class Main {
         )
     }
 
+    heroTouchHandler(x, y){
+        if (y >= this.databus.hero.y) {
+            if (x < this.databus.hero.x) {
+                this.databus.hero.direction = -1
+            } else if (x > this.databus.hero.x + this.databus.hero.width) {
+                this.databus.hero.direction = 1
+            } else {
+                this.databus.hero.direction = 0
+            }
+        }
+    }
+
     touchStartHandler(e) {
         e.preventDefault()
 
         let x = e.touches[0].clientX
         let y = e.touches[0].clientY
-        if (y >= this.hero.y) {
-            if (x < this.hero.x){
-                this.hero.direction = -1
-            } else if (x > this.hero.x + this.hero.width){
-                this.hero.direction = 1
-            }
-        }
+        this.heroTouchHandler(x, y)
     }
 
     touchMoveHandler(e){
         let x = e.changedTouches[0].clientX
         let y = e.changedTouches[0].clientY
-        if (y >= this.hero.y) {
-            if (x < this.hero.x) {
-                this.hero.direction = -1
-            } else if (x > this.hero.x + this.hero.width) {
-                this.hero.direction = 1
-            }
-        }
+        this.heroTouchHandler(x, y)
     }
 
     touchEndHandler(e){
         let x = e.changedTouches[0].clientX
         let y = e.changedTouches[0].clientY
-        if (y >= this.hero.y){
-            this.hero.direction = 0
+        if (y >= this.databus.hero.y){
+            this.databus.hero.direction = 0
         }
     }
     /**
@@ -122,25 +133,40 @@ export default class Main {
      */
     render() {
         this.background.draw(ctx)
-        this.hero.draw(ctx)
-        this.enemy.draw(ctx)
+        this.databus.hero.draw(ctx)
+        this.databus.enemy.draw(ctx)
     }
 
     // 游戏逻辑更新主函数
     update() {
-        this.enemy.nextFrame()
-        let rect = {
-            left: 0,
-            top: 0,
-            right: canvas.width - 1,
-            bottom: canvas.height - 50
-        }
-        if (this.enemy.isOutOfRange(rect)) {
-            this.enemy = this.produceEnemy()
-        }
-        this.hero.move()
-        if (this.hero.kill(this.enemy)){
-            this.score++
+        let hero = this.databus.hero
+        let enemy = this.databus.enemy
+
+        let progress = enemy.explosionProgress();
+        if (progress == 2) {
+            this.databus.enemy = this.produceEnemy()
+        }else if (progress == 1){
+            hero.move()
+        } else if (progress == 0) {
+            let above = enemy.y + enemy.height > hero.y
+            hero.move()
+            enemy.move()
+            let rect = {
+                left: 0,
+                top: 0,
+                right: this.background.width - 1,
+                bottom: this.background.skyHeight - 1
+            }
+            
+            if (enemy.isOutOfRange(rect)) {
+               this.databus.enemy = this.produceEnemy()
+            }
+            //前一帧在hero上方，下一帧撞上了，认为是从上方撞下来的
+            if (above && hero.kill(enemy)){
+                enemy.y = hero.y - enemy.height
+                enemy.startExplosion()
+                this.databus.score++
+            }
         }
     }
 
