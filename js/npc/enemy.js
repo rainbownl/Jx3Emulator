@@ -1,12 +1,12 @@
-export default class Enemy{
-    x
-    y
-    speedX          //pixels per frame
-    speedY
-    accelerate
-    image
-    width
-    height
+export default class Enemy extends PhysicalObject{
+    x = 0
+    y = 0
+    speedX = 0          //pixels per frame
+    speedY = 0
+    accelerate = 0
+    image = null
+    width = 0
+    height = 0
 
     explosion = null
     explosionFrame = 0

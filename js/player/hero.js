@@ -14,8 +14,14 @@ export default class Hero{
 
     move(leftRange, rightRange){
         this.x += this.speed * this.direction
-        if(this.x < leftRange) this.x = leftRange
-        if(this.x + this.width > rightRange) this.x = rightRange - this.width
+        if(this.x < leftRange){
+            this.x = leftRange
+            this.direction = 1
+        }
+        if(this.x + this.width > rightRange){
+            this.x = rightRange - this.width
+            this.direction = -1
+        }
     }
 
     kill(object){
