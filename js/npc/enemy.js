@@ -1,4 +1,4 @@
-export default class Enemy extends PhysicalObject{
+export default class Enemy{
     x = 0
     y = 0
     speedX = 0          //pixels per frame
@@ -35,7 +35,8 @@ export default class Enemy extends PhysicalObject{
     }
 
     isOutOfRange(rect){
-        if ((this.x + this.width) < rect.left || this.x > rect.right || (this.y + this.height) < rect.top || this.y > rect.bottom){
+        if ((this.x + this.width) < rect.left || this.x > rect.right || (this.y + this.height) < rect.top || 
+            this.y > rect.bottom){
             return true
         }
         return false

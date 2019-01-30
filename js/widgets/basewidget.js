@@ -3,7 +3,9 @@ export default class BaseWidget{
     drawable = null
     id = 0
     pageManager
-    
+    enable = false
+    onClickListener = null
+
     draw(context){
         let rect = this.rect
         if (this.drawable != null){

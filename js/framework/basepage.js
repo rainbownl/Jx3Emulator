@@ -1,16 +1,11 @@
 export default class BasePage{
     name
     widgets = new Array()
+    bindTouchStartHandler = this.touchStartHandler.bind(this)
+    bindTouchEndHandler = this.touchEndHandler.bind(this)
+    bindTouchMoveHandler = this.touchMoveHandler.bind(this)
 
     init(){
-        canvas.addEventListener(
-            'touchstart',
-            this.touchStartHandler.bind(this)
-        )
-        canvas.addEventListener(
-            'touchend',
-            this.touchEndHandler.bind(this)
-        )
     }
 
     touchStartHandler(res){
@@ -18,7 +13,7 @@ export default class BasePage{
         let y = res.touches[0].clientY
         for(let i = this.widgets.length - 1; i >= 0; i--){
             let it = this.widgets[i]
-            if (x >= it.rect.left && x <= it.rect.right && y >= it.rect.top && y <= it.rect.bottom){
+            if (it.enable && x >= it.rect.left && x <= it.rect.right && y >= it.rect.top && y <= it.rect.bottom){
                 this.touchStartWidget = it
                 break
             }
@@ -31,7 +26,7 @@ export default class BasePage{
         let widget = null
         for (let i = this.widgets.length - 1; i >= 0; i--) {
             let it = this.widgets[i]
-            if (x >= it.rect.left && x <= it.rect.right && y >= it.rect.top && y <= it.rect.bottom){
+            if (it.enable && x >= it.rect.left && x <= it.rect.right && y >= it.rect.top && y <= it.rect.bottom){
                 widget = it
                 break
             }
@@ -42,16 +37,11 @@ export default class BasePage{
         this.touchStartWidget = null
     }
 
-    finish(){
-        canvas.removeEventListener(
-            'touchstart',
-            this.touchStartHandler.bind(this)
-        )
+    touchMoveHandler(res){
 
-        canvas.removeEventListener(
-            'touchend',
-            this.touchEndHandler.bind(this)
-        )
+    }
+    
+    finish(){
     }
 
     onReenter(){

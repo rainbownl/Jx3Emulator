@@ -2,6 +2,7 @@ import Background from 'runtime/background.js'
 import BasePage from 'framework/basepage.js'
 import BaseWidget from 'widgets/basewidget.js'
 import Button from 'widgets/button.js'
+import Label from 'widgets/label.js'
 
 let ctx = canvas.getContext('2d')
 
@@ -12,9 +13,12 @@ export default class StartPage extends BasePage{
     
     widgets = new Array()
     anid = 0
+    message = null
 
-    init(){
+    init(param){
+        this.name = 'StartPage'
         super.init()
+        this.message = param
         this.produceBackground()
         this.initWidgets()
         this.loop()
@@ -32,14 +36,15 @@ export default class StartPage extends BasePage{
     initWidgets(){
         let widgets = this.widgets
         let dlgBg = new BaseWidget()
-        dlgBg.rect = {left:(canvas.width-200)/2, top:(canvas.height-100)/2, right:(canvas.width+200)/2,
-            bottom:(canvas.height+100)/2}
+        dlgBg.rect = {left:0, top:0, right:canvas.width - 1, bottom:canvas.height-1}
         dlgBg.drawable = wx.createImage()
         dlgBg.drawable.src = 'images/dlgbg.png'
         dlgBg.id = ID_DLGBG
+        dlgBg.enable = true
+        dlgBg.onClickListener = this.onClickListener.bind(this)
         widgets.push(dlgBg)
 
-        let btnStart = new Button()
+        /*let btnStart = new Button()
         btnStart.rect = {left:dlgBg.rect.left+30, top:dlgBg.rect.top+35, right:dlgBg.rect.left+90,
             bottom:dlgBg.rect.bottom-35}
         btnStart.drawable = wx.createImage()
@@ -63,13 +68,27 @@ export default class StartPage extends BasePage{
         btnQuit.text = "退出"
         btnQuit.normalColor = 'black'
         btnQuit.clickedColor = 'black'
-        widgets.push(btnQuit)
+        widgets.push(btnQuit)*/
+        let lblMsg = new Label()
+        lblMsg.rect = {left:0, top: canvas.height/4, right: canvas.width - 1, bottom: canvas.height/4}
+        lblMsg.text = this.message
+        lblMsg.textSize = 20
+        lblMsg.normalColor = '#555555'
+        widgets.push(lblMsg)
+
+        let lblStart = new Label()
+        lblStart.rect = {left: 0, top: canvas.height*3/4, right: canvas.width-1, bottom: canvas.height*3/4+20}
+        lblStart.text = "点击屏幕任意位置开始游戏"
+        lblStart.id = -1
+        lblStart.normalColor = '#555555'
+        lblStart.textSize = 20
+        widgets.push(lblStart)
     }
 
     onClickListener(widget){
         let id = widget.id
         switch(id){
-            case ID_BTNSTART:
+            case ID_DLGBG:
                 if (this.pageManager != null){
                     this.pageManager.createPage('Main')
                 }

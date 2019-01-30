@@ -12,8 +12,11 @@ let ctx = canvas.getContext('2d')
 export default class Main extends BasePage{
     // 维护当前requestAnimationFrame的id
     aniId = 0
+    animations = new Array()
+    isFinish = false
 
     init(){
+        this.name = 'Main'
         this.databus = new DataBus()
         this.restart()
    }
@@ -84,46 +87,28 @@ export default class Main extends BasePage{
         this.databus.hero = this.produceHero()
         this.databus.enemy = this.produceEnemy()
 
-        canvas.addEventListener(
-            'touchstart',
-            this.touchStartHandler.bind(this)
-        )
-        canvas.addEventListener(
-            'touchmove',
-            this.touchMoveHandler.bind(this)
-        )
-        canvas.addEventListener(
-            'touchend',
-            this.touchEndHandler.bind(this)
-        )
-
         this.bindLoop = this.loop.bind(this)
         this.hasEventBind = false
 
         // 清除上一局的动画
-        window.cancelAnimationFrame(this.aniId);
+        cancelAnimationFrame(this.aniId);
 
-        this.aniId = window.requestAnimationFrame(
+        this.birdInterval = setInterval(function(){
+            this.databus.bird = this.produceBird()
+        }.bind(this), 5000)
+
+        this.aniId = requestAnimationFrame(
             this.bindLoop,
             canvas
         )
+        this.isFinish = false
     }
 
     finish(){
-        window.cancelAnimationFrame(this.aniId)
-        this.databus = null
-        canvas.removeEventListener(
-            'touchstart',
-            this.touchStartHandler.bind(this)
-        )
-        canvas.removeEventListener(
-            'touchmove',
-            this.touchMoveHandler.bind(this)
-        )
-        canvas.removeEventListener(
-            'touchend',
-            this.touchEndHandler.bind(this)
-        )
+        this.isFinish = true
+        cancelAnimationFrame(this.aniId)
+        clearInterval(this.birdInterval)
+        //this.databus = null
     }
 
     heroTouchHandler(x, y){
@@ -139,8 +124,6 @@ export default class Main extends BasePage{
     }
 
     touchStartHandler(e) {
-        e.preventDefault()
-
         let x = e.touches[0].clientX
         let y = e.touches[0].clientY
         this.heroTouchHandler(x, y)
@@ -163,17 +146,32 @@ export default class Main extends BasePage{
     drawGameInfo(){
         ctx.font = '20px'
         ctx.textAlign = 'left'
-        let text = '得分 : ' + this.databus.score + '血量 : ' + this.databus.blood
+        let text = '得分 : ' + this.databus.score + '    血量 : ' + this.databus.blood
         ctx.strokeText(text, 10, 20)
     }
+
     /**
      * canvas重绘函数
      * 每一帧重新绘制所有的需要展示的元素
      */
     render() {
-        this.background.draw(ctx)
-        this.databus.hero.draw(ctx)
-        this.databus.enemy.draw(ctx)
+        if (this.background != null){
+            this.background.draw(ctx)
+        }
+        if (this.databus != null)
+        {
+            if (this.databus.hero != null)
+            {
+                this.databus.hero.draw(ctx)
+            }
+            if (this.databus.enemy != null)
+            {
+                this.databus.enemy.draw(ctx)
+            }
+            if (this.databus.bird != null){
+                this.databus.bird.draw(ctx)
+            }
+        }
         this.drawGameInfo()
     }
 
@@ -183,6 +181,12 @@ export default class Main extends BasePage{
         let enemy = this.databus.enemy
 
         let progress = enemy.explosionProgress();
+        var rect = {
+            left: 0,
+            top: 0,
+            right: this.background.width - 1,
+            bottom: this.background.skyHeight - 1
+        }
         if (progress == 2) {
             this.databus.enemy = this.produceEnemy()
         }else if (progress == 1){
@@ -191,12 +195,6 @@ export default class Main extends BasePage{
             let above = enemy.y + enemy.height > hero.y
             hero.move(0, this.background.width - 1)
             enemy.move()
-            var rect = {
-                left: 0,
-                top: 0,
-                right: this.background.width - 1,
-                bottom: this.background.skyHeight - 1
-            }
             
             if (enemy.isOutOfRange(rect)) {
                 this.databus.blood--
@@ -209,6 +207,7 @@ export default class Main extends BasePage{
                 this.databus.score++
             }
         }
+        //超级无敌展翅大鹏鸟，碰到就死
         let bird = this.databus.bird
         if (bird != null){
             bird.move()
@@ -222,12 +221,15 @@ export default class Main extends BasePage{
             }
         }
         if (this.databus.blood <= 0){
-            gameOver()
+            this.gameOver()
         }
     }
 
     // 实现游戏帧循环
     loop() {
+        if (this.isFinish){
+            return
+        }
         this.update()
         this.render()
 
@@ -238,6 +240,6 @@ export default class Main extends BasePage{
     }
 
     gameOver(){
-        this.pageManager.returnPage()
+        let page = this.pageManager.createPage('StartPage', 'Game Over')
     }
 }

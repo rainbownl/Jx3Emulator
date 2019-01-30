@@ -7,3 +7,6 @@ import StartPage from './js/startpage.js'
 //new Main()
 let pageManager = new PageManager()
 pageManager.createPage('StartPage')
+wx.onTouchStart(pageManager.bindTouchStartHandler)
+wx.onTouchMove(pageManager.bindTouchMoveHandler)
+wx.onTouchEnd(pageManager.bindTouchEndHandler)
