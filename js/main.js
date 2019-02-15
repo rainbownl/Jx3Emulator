@@ -147,7 +147,7 @@ export default class Main extends BasePage{
         ctx.font = '20px'
         ctx.textAlign = 'left'
         let text = '得分 : ' + this.databus.score + '    血量 : ' + this.databus.blood
-        ctx.strokeText(text, 10, 20)
+        ctx.fillText(text, 10, 20)
     }
 
     /**

@@ -25,8 +25,8 @@ export default class Label extends BaseWidget{
         if (textColor != null && this.text != null){
             context.textAlign = 'center'
             context.font= "" + this.textSize + "px 楷体"
-            context.strokeStyle = textColor
-            context.strokeText(this.text, (rect.left + rect.right)/2, 
+            context.fillStyle = textColor
+            context.fillText(this.text, (rect.left + rect.right)/2, 
                 (rect.top + rect.bottom)/2 + this.textSize,
                 rect.right - rect.left)
         }

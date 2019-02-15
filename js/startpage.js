@@ -44,35 +44,10 @@ export default class StartPage extends BasePage{
         dlgBg.onClickListener = this.onClickListener.bind(this)
         widgets.push(dlgBg)
 
-        /*let btnStart = new Button()
-        btnStart.rect = {left:dlgBg.rect.left+30, top:dlgBg.rect.top+35, right:dlgBg.rect.left+90,
-            bottom:dlgBg.rect.bottom-35}
-        btnStart.drawable = wx.createImage()
-        btnStart.drawable.src = 'images/btnbg.png'
-        btnStart.clickDrawable = btnStart.drawable
-        btnStart.id = ID_BTNSTART
-        btnStart.onClickListener = this.onClickListener.bind(this)
-        btnStart.text="开始"
-        btnStart.normalColor = 'black'
-        btnStart.clickedColor = 'black'
-        widgets.push(btnStart)
-
-        let btnQuit = new Button()
-        btnQuit.rect = {left:dlgBg.rect.left+110, top:dlgBg.rect.top+35, right:dlgBg.rect.right - 30,
-            bottom:btnStart.rect.bottom}
-        btnQuit.drawable = wx.createImage()
-        btnQuit.drawable.src = 'images/btnbg.png'
-        btnQuit.clickDrawable = btnQuit.drawable
-        btnQuit.id = ID_BTNHELP
-        btnQuit.onClickListener = this.onClickListener.bind(this)
-        btnQuit.text = "退出"
-        btnQuit.normalColor = 'black'
-        btnQuit.clickedColor = 'black'
-        widgets.push(btnQuit)*/
         let lblMsg = new Label()
         lblMsg.rect = {left:0, top: canvas.height/4, right: canvas.width - 1, bottom: canvas.height/4}
         lblMsg.text = this.message
-        lblMsg.textSize = 20
+        lblMsg.textSize = 24
         lblMsg.normalColor = '#555555'
         widgets.push(lblMsg)
 
@@ -81,7 +56,7 @@ export default class StartPage extends BasePage{
         lblStart.text = "点击屏幕任意位置开始游戏"
         lblStart.id = -1
         lblStart.normalColor = '#555555'
-        lblStart.textSize = 20
+        lblStart.textSize = 24
         widgets.push(lblStart)
     }
 
